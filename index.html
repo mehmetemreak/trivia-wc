@@ -461,6 +461,7 @@
       text-align: center;
       margin-bottom: 11px;
     }
+  
     .score-number {
       font-size: 3.4rem; font-weight: 900;
       color: var(--gold); line-height: 1;
@@ -590,6 +591,11 @@ const S = {
   wrong:      0,
   lastOk:     false,
   lastPts:    0,
+  counters: {
+    easy: 0,
+    medium: 0,
+    hard: 0
+  }
 };
 
 /* ═══════════════════════════════════════════════════════
@@ -633,7 +639,6 @@ function renderWelcome() {
   p.forEach(q => { if (c[q.difficulty] !== undefined) c[q.difficulty]++; });
   const maxPts = p.reduce((a, q) => a + (q.points || 1), 0);
   
-  // High score fetch
   const bestScore = getBest();
   const bestScoreHTML = bestScore > 0 
     ? `<div class="best-score-badge">👑 En Yüksek Skorun: ${bestScore} Puan</div>` 
@@ -643,7 +648,7 @@ function renderWelcome() {
     <div class="welcome-wrap">
       <p class="eyebrow">Quiz Night</p>
       <h1 class="wc-title">Football<br><span>Trivia</span></h1>
-      <p class="wc-sub">${p.length} soru &nbsp;·&nbsp; ${maxPts} puan havuzu</p>
+      <p class="wc-sub">${p.length} soru &nbsp;·&nbsp; ${maxPts} puan havuzu${bestScore > 0 ? ` &nbsp;·&nbsp; 🏅 Rekor: ${bestScore}` : ''}</p>
       
       ${bestScoreHTML}
 
@@ -685,6 +690,12 @@ function startQuiz() {
   S.hintTotal = 0;
   S.correct   = 0;
   S.wrong     = 0;
+  renderQ();
+  show('quiz');
+  S.counters.easy = 0;
+  S.counters.medium = 0;
+  S.counters.hard = 0;
+  
   renderQ();
   show('quiz');
 }
@@ -770,14 +781,23 @@ function pick(i) {
   document.getElementById('btn-5050').disabled  = true;
 
   /* update state */
-  if (ok) { S.score += pts; S.correct++; } else { S.wrong++; }
+  if (ok) { 
+    S.score += pts; 
+    S.correct++; 
+    // EKLENEN KISIM: Dinamik olarak ilgili zorluk sayacını artır
+    if (S.counters[q.difficulty] !== undefined) {
+      S.counters[q.difficulty]++;
+    }
+  } else { 
+    S.wrong++; 
+  }
+  
   S.lastOk  = ok;
   S.lastPts = pts;
   document.getElementById('score-val').textContent = S.score;
 
   setTimeout(showFact, 650);
 }
-
 /* ═══════════════════════════════════════════════════════
     JOKERS
 ═══════════════════════════════════════════════════════ */
@@ -813,7 +833,7 @@ function useFiftyFifty() {
     const targetChoice = document.querySelectorAll('.choice')[i];
     if (targetChoice) {
       targetChoice.classList.add('eliminated');
-      targetChoice.disabled = true; // Bugfix: Prevents clicks on eliminated options
+      targetChoice.disabled = true;
     }
   });
 }
@@ -891,17 +911,16 @@ function nextQ() {
     END SCREEN
 ═══════════════════════════════════════════════════════ */
 function showEnd() {
+  // Rekor Mantığı Tek Bir Akışa İndirgendi (Çakışma Çözüldü)
+  const prevBest = getBest();
+  const isNewRecord = S.score > prevBest;
+  if (isNewRecord) {
+    setBest(S.score);
+  }
+
   const total  = S.deck.length;
   const pct    = Math.round((S.correct / total) * 100);
   const maxPts = S.deck.reduce((a, q) => a + (q.points || 1), 0);
-
-  // High score record save logic
-  const currentBest = getBest();
-  let isNewRecord = false;
-  if (S.score > currentBest) {
-    setBest(S.score);
-    isNewRecord = true;
-  }
 
   let trophy, verdict;
   if      (pct >= 80) { trophy = '🏆'; verdict = 'Efsane performans'; }
@@ -919,7 +938,22 @@ function showEnd() {
       </div>
       <div class="score-display">
         <div class="score-number">${S.score}</div>
-        <div class="score-max">/ ${maxPts} puan</div>
+        <div class="score-max">/ ${maxPts} puan &nbsp;${isNewRecord ? '🏅 Yeni rekor!' : `· Rekor: ${prevBest}`}</div>
+      </div>
+      <!-- EKLENEN KISIM: Zorluk Seviyesine Göre Doğru Bilme İstatistikleri -->
+      <div class="end-grid" style="margin-bottom: 11px;">
+        <div class="eg-cell" style="border-color: rgba(0,183,74,0.2);">
+          <div class="eg-val" style="color:var(--easy)">${S.counters.easy}</div>
+          <div class="eg-lbl">Kolay Doğru</div>
+        </div>
+        <div class="eg-cell" style="border-color: rgba(255,209,102,0.2);">
+          <div class="eg-val" style="color:var(--medium)">${S.counters.medium}</div>
+          <div class="eg-lbl">Orta Doğru</div>
+        </div>
+        <div class="eg-cell" style="border-color: rgba(230,57,70,0.2);">
+          <div class="eg-val" style="color:var(--hard)">${S.counters.hard}</div>
+          <div class="eg-lbl">Zor Doğru</div>
+        </div>
       </div>
       <div class="end-grid">
         <div class="eg-cell">
