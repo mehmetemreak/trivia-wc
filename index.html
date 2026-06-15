@@ -1,6 +1,902 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Quiz Night</title>
+  <script src="questions.js"></script>
+  <style>
+    :root {
+      --pitch:    #0a1628;
+      --surface:  #111d35;
+      --surf2:    #192a4a;
+      --surf3:    #1f3360;
+      --grass:    #00b74a;
+      --grass2:   #00d967;
+      --gold:     #f5c518;
+      --red:      #e63946;
+      --yellow:   #ffd166;
+      --text:     #e8edf5;
+      --muted:    #6b7fa3;
+      --border:   rgba(255,255,255,0.07);
+      --easy:     #00b74a;
+      --medium:   #ffd166;
+      --hard:     #e63946;
+      --r:        14px;
+      --rs:       8px;
+      --tr:       0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--pitch);
+      /* Pitch stripe signature — subtle mown-grass banding */
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0px, transparent 52px,
+        rgba(255,255,255,0.016) 52px, rgba(255,255,255,0.016) 104px
+      );
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 48px;
+    }
+
+    /* ── SCREENS ─────────────────────────────────────── */
+    .screen { display: none; width: 100%; max-width: 600px; }
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 0.28s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── WELCOME ─────────────────────────────────────── */
+    .welcome-wrap { padding-top: 32px; }
+
+    .eyebrow {
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--grass);
+      margin-bottom: 10px;
+    }
+
+    .wc-title {
+      text-align: center;
+      font-size: clamp(2.2rem, 9vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1.0;
+      margin-bottom: 8px;
+    }
+    .wc-title span { color: var(--grass); }
+
+    .wc-sub {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 28px;
+    }
+
+    .pool-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .pool-seg {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .ps-val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .ps-lbl {
+      font-size: 0.63rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .joker-info {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .ji-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.79rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .ji-item strong { color: var(--text); display: block; }
+
+    .btn-start {
+      display: block;
+      width: 100%;
+      background: var(--grass);
+      color: #000;
+      border: none;
+      border-radius: var(--r);
+      padding: 17px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: all var(--tr);
+    }
+    .btn-start:hover {
+      background: var(--grass2);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,183,74,0.28);
+    }
+    .btn-start:active { transform: translateY(0); }
+
+    /* ── QUIZ HEADER ─────────────────────────────────── */
+    .qz-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .q-counter {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+    .scoreboard {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surf2);
+      border-radius: var(--rs);
+      padding: 6px 12px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prog-track {
+      background: var(--surf2);
+      border-radius: 99px;
+      height: 3px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--grass), var(--grass2));
+      border-radius: 99px;
+      transition: width 0.45s ease;
+    }
+
+    /* ── QUESTION CARD ───────────────────────────────── */
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 20px 18px;
+      margin-bottom: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Difficulty left-edge accent */
+    .q-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--diff-color, var(--grass));
+    }
+    .q-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .diff-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .diff-pill.easy   { background: rgba(0,183,74,0.14);   color: var(--easy); }
+    .diff-pill.medium { background: rgba(255,209,102,0.14); color: var(--medium); }
+    .diff-pill.hard   { background: rgba(230,57,70,0.14);   color: var(--hard); }
+
+    .pts-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .q-text {
+      font-size: 1.06rem;
+      font-weight: 600;
+      line-height: 1.62;
+      color: var(--text);
+    }
+
+    .hint-reveal {
+      margin-top: 13px;
+      padding: 9px 13px;
+      background: rgba(0,183,74,0.08);
+      border: 1px solid rgba(0,183,74,0.18);
+      border-radius: var(--rs);
+      font-size: 0.83rem;
+      color: var(--grass);
+      line-height: 1.5;
+      display: none;
+      gap: 7px;
+    }
+    .hint-reveal.show { display: flex; }
+
+    /* ── JOKERS ──────────────────────────────────────── */
+    .jokers-row {
+      display: flex;
+      gap: 9px;
+      margin-bottom: 13px;
+    }
+    .joker-btn {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 9px 11px;
+      cursor: pointer;
+      transition: all var(--tr);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .joker-btn:hover:not(:disabled) {
+      border-color: rgba(255,255,255,0.18);
+      background: var(--surf2);
+    }
+    .joker-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .jk-icon { font-size: 1.1rem; }
+    .jk-info { flex: 1; text-align: left; }
+    .jk-name { font-size: 0.79rem; font-weight: 700; display: block; }
+    .jk-sub  { font-size: 0.67rem; }
+    .jk-sub.free-c { color: var(--grass); }
+    .jk-sub.cost-c { color: var(--red); }
+
+    .hint-dots { display: flex; gap: 3px; }
+    .hdot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--grass);
+      transition: background 0.2s;
+    }
+    .hdot.spent { background: var(--surf3); }
+
+    /* ── CHOICES ─────────────────────────────────────── */
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+    .choice {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--rs);
+      padding: 13px 13px;
+      cursor: pointer;
+      transition: all var(--tr);
+      color: var(--text);
+      font-size: 0.87rem;
+      font-weight: 500;
+      line-height: 1.4;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+    .choice-ltr {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 21px; height: 21px;
+      background: var(--surf2);
+      border-radius: 4px;
+      font-size: 0.68rem; font-weight: 800;
+      color: var(--grass);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .choice:hover:not(:disabled) {
+      border-color: rgba(0,183,74,0.45);
+      background: rgba(0,183,74,0.05);
+      transform: translateY(-1px);
+    }
+    .choice.correct {
+      border-color: var(--grass);
+      background: rgba(0,183,74,0.11);
+      color: var(--grass);
+    }
+    .choice.correct .choice-ltr { background: var(--grass); color: #000; }
+    .choice.wrong {
+      border-color: var(--red);
+      background: rgba(230,57,70,0.08);
+      color: var(--red);
+      opacity: 0.65;
+    }
+    .choice.wrong .choice-ltr { background: var(--red); color: #fff; }
+    .choice.eliminated { opacity: 0.15; pointer-events: none; }
+    .choice:disabled   { cursor: not-allowed; }
+
+    /* ── FACT / RESULT ───────────────────────────────── */
+    .fact-wrap { animation: factPop 0.32s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    @keyframes factPop {
+      from { opacity: 0; transform: scale(0.96) translateY(14px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .result-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      margin-bottom: 11px;
+    }
+    .result-big { font-size: 1.9rem; }
+    .result-info h3 { font-size: 0.98rem; font-weight: 800; margin-bottom: 3px; }
+    .result-info .r-pts { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+    .fact-body {
+      background: var(--surface);
+      border: 1px solid rgba(0,183,74,0.14);
+      border-radius: var(--r);
+      padding: 16px 20px;
+      margin-bottom: 11px;
+    }
+    .fact-eyebrow {
+      font-size: 0.64rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--grass);
+      margin-bottom: 7px;
+    }
+    .fact-content {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .btn-next {
+      display: block; width: 100%;
+      background: var(--surf2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      color: var(--text);
+      font-size: 0.9rem; font-weight: 700;
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+    .btn-next:hover {
+      border-color: rgba(255,255,255,0.18);
+      background: var(--surf3);
+    }
+
+    /* ── END SCREEN ──────────────────────────────────── */
+    .end-wrap { padding-top: 16px; }
+
+    .end-hero { text-align: center; margin-bottom: 22px; }
+    .end-trophy { font-size: 3.8rem; }
+    .end-verdict {
+      font-size: 1.35rem; font-weight: 900;
+      letter-spacing: -0.5px; margin: 8px 0 3px;
+    }
+    .end-acc { font-size: 0.83rem; color: var(--muted); }
+
+    .score-display {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px;
+      text-align: center;
+      margin-bottom: 11px;
+    }
+    .score-number {
+      font-size: 3.4rem; font-weight: 900;
+      color: var(--gold); line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .score-max { font-size: 0.73rem; color: var(--muted); margin-top: 3px; }
+
+    .end-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px; margin-bottom: 15px;
+    }
+    .eg-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 13px 8px; text-align: center;
+    }
+    .eg-val { font-size: 1.4rem; font-weight: 900; line-height: 1; }
+    .eg-lbl {
+      font-size: 0.61rem; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--muted); margin-top: 4px;
+    }
+
+    .btn-replay {
+      display: block; width: 100%;
+      background: var(--grass);
+      color: #000; border: none;
+      border-radius: var(--r);
+      padding: 16px;
+      font-size: 0.95rem; font-weight: 800;
+      cursor: pointer;
+      transition: all var(--tr);
+    }
+    .btn-replay:hover {
+      background: var(--grass2);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,183,74,0.25);
+    }
+
+    /* ── EMPTY STATE ─────────────────────────────────── */
+    .empty-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 56px 32px; text-align: center;
+      margin-top: 40px;
+    }
+    .empty-icon { font-size: 2.8rem; margin-bottom: 14px; }
+    .empty-card h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+    .empty-card p  { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 420px) {
+      .choices       { grid-template-columns: 1fr; }
+      .wc-title      { font-size: 2rem; }
+      .joker-info    { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, .screen.active, .fact-wrap { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
 <body>
-<h1>Coming soon</h1>
+
+<!-- WELCOME -->
+<div class="screen active" id="screen-welcome"></div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="qz-header">
+    <span class="q-counter" id="q-counter">Soru 1 / —</span>
+    <div class="scoreboard">⚽ <span id="score-val">0</span></div>
+  </div>
+  <div class="prog-track">
+    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+  <div class="q-card" id="q-card">
+    <div class="q-meta">
+      <span class="diff-pill" id="diff-pill"></span>
+      <span class="pts-tag"  id="pts-tag"></span>
+    </div>
+    <p class="q-text" id="q-text"></p>
+    <div class="hint-reveal" id="hint-reveal">
+      <span>💡</span><span id="hint-text-span"></span>
+    </div>
+  </div>
+  <div class="jokers-row">
+    <button class="joker-btn" id="btn-hint" onclick="useHint()">
+      <span class="jk-icon">💡</span>
+      <div class="jk-info">
+        <span class="jk-name">İpucu</span>
+        <span class="jk-sub free-c" id="hint-sub">3 hak kaldı</span>
+      </div>
+      <div class="hint-dots" id="hint-dots"></div>
+    </button>
+    <button class="joker-btn" id="btn-5050" onclick="useFiftyFifty()">
+      <span class="jk-icon">🎯</span>
+      <div class="jk-info">
+        <span class="jk-name">50 : 50</span>
+        <span class="jk-sub cost-c">−2 puan</span>
+      </div>
+    </button>
+  </div>
+  <div class="choices" id="choices"></div>
+</div>
+
+<!-- FACT -->
+<div class="screen" id="screen-fact"></div>
+
+<!-- END -->
+<div class="screen" id="screen-end"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+const S = {
+  pool:       [],   // original question array
+  deck:       [],   // shuffled copy for current game
+  idx:        0,    // current question index
+  score:      0,
+  hintTotal:  0,    // hint uses across whole game
+  hintFree:   3,    // free hint allowance
+  hintThisQ:  false,
+  ffThisQ:    false,
+  correct:    0,
+  wrong:      0,
+  lastOk:     false,
+  lastPts:    0,
+};
+
+/* ═══════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const pool = (typeof questions !== 'undefined' && Array.isArray(questions))
+    ? questions : [];
+
+  if (pool.length === 0) {
+    show('welcome');
+    document.getElementById('screen-welcome').innerHTML = `
+      <div class="empty-card">
+        <div class="empty-icon">📭</div>
+        <h2>Soru bulunamadı</h2>
+        <p>questions.js dosyasındaki dizi boş ya da dosya yüklenemedi.<br>
+           Soruları ekle ve sayfayı yenile.</p>
+      </div>`;
+    return;
+  }
+
+  S.pool = pool;
+  renderWelcome();
+  show('welcome');
+});
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN SWITCH
+═══════════════════════════════════════════════════════ */
+function show(name) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════
+   WELCOME
+═══════════════════════════════════════════════════════ */
+function renderWelcome() {
+  const p = S.pool;
+  const c = { easy: 0, medium: 0, hard: 0 };
+  p.forEach(q => { if (c[q.difficulty] !== undefined) c[q.difficulty]++; });
+  const maxPts = p.reduce((a, q) => a + (q.points || 1), 0);
+
+  document.getElementById('screen-welcome').innerHTML = `
+    <div class="welcome-wrap">
+      <p class="eyebrow">Quiz Night</p>
+      <h1 class="wc-title">Football<br><span>Trivia</span></h1>
+      <p class="wc-sub">${p.length} soru &nbsp;·&nbsp; ${maxPts} puan havuzu</p>
+      <div class="pool-bar">
+        <div class="pool-seg">
+          <div class="ps-val" style="color:var(--easy)">${c.easy}</div>
+          <div class="ps-lbl">Kolay</div>
+        </div>
+        <div class="pool-seg">
+          <div class="ps-val" style="color:var(--medium)">${c.medium}</div>
+          <div class="ps-lbl">Orta</div>
+        </div>
+        <div class="pool-seg">
+          <div class="ps-val" style="color:var(--hard)">${c.hard}</div>
+          <div class="ps-lbl">Zor</div>
+        </div>
+      </div>
+      <div class="joker-info">
+        <div class="ji-item">
+          <span>💡</span>
+          <div><strong>İpucu</strong>İlk 3 bedava, sonrası her kullanım −1 puan</div>
+        </div>
+        <div class="ji-item">
+          <span>🎯</span>
+          <div><strong>50:50</strong>Her soruda bir kez &nbsp;— −2 puan</div>
+        </div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">Başla</button>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUIZ START + RENDER
+═══════════════════════════════════════════════════════ */
+function startQuiz() {
+  S.deck      = shuffle([...S.pool]);
+  S.idx       = 0;
+  S.score     = 0;
+  S.hintTotal = 0;
+  S.correct   = 0;
+  S.wrong     = 0;
+  renderQ();
+  show('quiz');
+}
+
+function renderQ() {
+  const q     = S.deck[S.idx];
+  const total = S.deck.length;
+  S.hintThisQ = false;
+  S.ffThisQ   = false;
+
+  /* header */
+  document.getElementById('q-counter').textContent  = `Soru ${S.idx + 1} / ${total}`;
+  document.getElementById('score-val').textContent   = S.score;
+  document.getElementById('prog-fill').style.width   = `${(S.idx / total) * 100}%`;
+
+  /* difficulty accent */
+  const dcMap = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
+  document.getElementById('q-card')
+    .style.setProperty('--diff-color', dcMap[q.difficulty] || 'var(--easy)');
+
+  const dlMap = { easy: 'Kolay', medium: 'Orta', hard: 'Zor' };
+  const pill  = document.getElementById('diff-pill');
+  pill.textContent = dlMap[q.difficulty] || q.difficulty;
+  pill.className   = 'diff-pill ' + (q.difficulty || 'easy');
+
+  document.getElementById('pts-tag').textContent = `⭐ ${q.points || 1} puan`;
+  document.getElementById('q-text').textContent  = q.text;
+
+  /* hint box reset */
+  const hr = document.getElementById('hint-reveal');
+  hr.classList.remove('show');
+  document.getElementById('hint-text-span').textContent = '';
+
+  /* joker buttons reset */
+  document.getElementById('btn-hint').disabled  = false;
+  document.getElementById('btn-5050').disabled  = false;
+  renderHintUI();
+
+  /* choices */
+  const grid   = document.getElementById('choices');
+  grid.innerHTML = '';
+  const labels = ['A','B','C','D'];
+  (q.choices || []).forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.dataset.idx = i;
+    btn.innerHTML   = `<span class="choice-ltr">${labels[i]}</span><span>${text}</span>`;
+    btn.addEventListener('click', () => pick(i));
+    grid.appendChild(btn);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANSWER SELECTION
+═══════════════════════════════════════════════════════ */
+function pick(i) {
+  const q   = S.deck[S.idx];
+  const ok  = (i === q.answer);
+  const pts = ok ? (q.points || 1) : 0;
+
+  /* lock all choices */
+  document.querySelectorAll('.choice').forEach(b => { b.disabled = true; });
+
+  /* mark correct / wrong */
+  const btns = document.querySelectorAll('.choice');
+  btns[i].classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) btns[q.answer].classList.add('correct');
+
+  /* lock jokers */
+  document.getElementById('btn-hint').disabled  = true;
+  document.getElementById('btn-5050').disabled  = true;
+
+  /* update state */
+  if (ok) { S.score += pts; S.correct++; } else { S.wrong++; }
+  S.lastOk  = ok;
+  S.lastPts = pts;
+  document.getElementById('score-val').textContent = S.score;
+
+  setTimeout(showFact, 650);
+}
+
+/* ═══════════════════════════════════════════════════════
+   JOKERS
+═══════════════════════════════════════════════════════ */
+function useHint() {
+  if (S.hintThisQ) return;
+  const q = S.deck[S.idx];
+  if (!q.hint) return;
+
+  S.hintThisQ = true;
+  S.hintTotal++;
+
+  if (S.hintTotal > S.hintFree) {
+    S.score = Math.max(0, S.score - 1);
+    document.getElementById('score-val').textContent = S.score;
+  }
+
+  document.getElementById('hint-text-span').textContent = q.hint;
+  document.getElementById('hint-reveal').classList.add('show');
+  document.getElementById('btn-hint').disabled = true;
+  renderHintUI();
+}
+
+function useFiftyFifty() {
+  if (S.ffThisQ) return;
+  S.ffThisQ = true;
+  S.score   = Math.max(0, S.score - 2);
+  document.getElementById('score-val').textContent = S.score;
+  document.getElementById('btn-5050').disabled = true;
+
+  const q     = S.deck[S.idx];
+  const wrong = shuffle([0,1,2,3].filter(i => i !== q.answer));
+  wrong.slice(0, 2).forEach(i => {
+    document.querySelectorAll('.choice')[i].classList.add('eliminated');
+  });
+}
+
+function renderHintUI() {
+  const used   = Math.min(S.hintTotal, S.hintFree);
+  const dotsEl = document.getElementById('hint-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < S.hintFree; i++) {
+    const d = document.createElement('span');
+    d.className = 'hdot' + (i < used ? ' spent' : '');
+    dotsEl.appendChild(d);
+  }
+
+  const sub = document.getElementById('hint-sub');
+  if (S.hintTotal >= S.hintFree) {
+    sub.textContent = '−1 puan';
+    sub.className   = 'jk-sub cost-c';
+  } else {
+    sub.textContent = `${S.hintFree - S.hintTotal} hak kaldı`;
+    sub.className   = 'jk-sub free-c';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   FACT CARD
+═══════════════════════════════════════════════════════ */
+function showFact() {
+  const q      = S.deck[S.idx];
+  const isLast = S.idx >= S.deck.length - 1;
+  const icon   = S.lastOk ? '✅' : '❌';
+  const title  = S.lastOk ? 'Doğru!' : 'Yanlış';
+  const sub    = S.lastOk
+    ? `+${S.lastPts} puan · Toplam: <b style="color:var(--gold)">${S.score}</b>`
+    : `Doğru cevap: <i>${q.choices[q.answer]}</i> · Toplam: <b style="color:var(--gold)">${S.score}</b>`;
+
+  const factHTML = q.fact ? `
+    <div class="fact-body">
+      <div class="fact-eyebrow">⚡ Bunu biliyor muydun?</div>
+      <p class="fact-content">${q.fact}</p>
+    </div>` : '';
+
+  document.getElementById('screen-fact').innerHTML = `
+    <div class="fact-wrap">
+      <div class="result-banner">
+        <div class="result-big">${icon}</div>
+        <div class="result-info">
+          <h3>${title}</h3>
+          <div class="r-pts">${sub}</div>
+        </div>
+      </div>
+      ${factHTML}
+      <button class="btn-next" onclick="nextQ()">
+        ${isLast ? '🏁 Sonuçları gör' : 'Sonraki soru →'}
+      </button>
+    </div>`;
+
+  show('fact');
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function nextQ() {
+  S.idx++;
+  if (S.idx >= S.deck.length) {
+    showEnd();
+  } else {
+    renderQ();
+    show('quiz');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   END SCREEN
+═══════════════════════════════════════════════════════ */
+function showEnd() {
+  const total  = S.deck.length;
+  const pct    = Math.round((S.correct / total) * 100);
+  const maxPts = S.deck.reduce((a, q) => a + (q.points || 1), 0);
+
+  let trophy, verdict;
+  if      (pct >= 80) { trophy = '🏆'; verdict = 'Efsane performans'; }
+  else if (pct >= 60) { trophy = '🥈'; verdict = 'İyi iş — biraz daha çalış'; }
+  else if (pct >= 40) { trophy = '🥉'; verdict = 'Ortalama, gelişme payı var'; }
+  else                { trophy = '⚽'; verdict = 'Daha çok maç izlemek lazım'; }
+
+  document.getElementById('screen-end').innerHTML = `
+    <div class="end-wrap">
+      <div class="end-hero">
+        <div class="end-trophy">${trophy}</div>
+        <h2 class="end-verdict">${verdict}</h2>
+        <p class="end-acc">${pct}% doğruluk oranı</p>
+      </div>
+      <div class="score-display">
+        <div class="score-number">${S.score}</div>
+        <div class="score-max">/ ${maxPts} puan</div>
+      </div>
+      <div class="end-grid">
+        <div class="eg-cell">
+          <div class="eg-val" style="color:var(--easy)">${S.correct}</div>
+          <div class="eg-lbl">Doğru</div>
+        </div>
+        <div class="eg-cell">
+          <div class="eg-val" style="color:var(--hard)">${S.wrong}</div>
+          <div class="eg-lbl">Yanlış</div>
+        </div>
+        <div class="eg-cell">
+          <div class="eg-val">${total}</div>
+          <div class="eg-lbl">Toplam</div>
+        </div>
+      </div>
+      <button class="btn-replay" onclick="restartQuiz()">↺ Tekrar Oyna</button>
+    </div>`;
+
+  show('end');
+}
+
+function restartQuiz() {
+  renderWelcome();
+  show('welcome');
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+</script>
 </body>
 </html>
