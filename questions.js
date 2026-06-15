@@ -8,6 +8,7 @@ const questions = [
   "hint": "Bu turnuva, Kuzey Amerika'da düzenlenen ilk Dünya Kupası'ydı.",
   "fact": "Pontiac Silverdome'un çimi, doğal güneş ışığından yoksun kapalı yapı nedeniyle özel tasarlanmış yapay aydınlatma sistemiyle büyütüldü — Dünya Kupası tarihinde bir ilk. Stadyum 2017'de yıkıldı.",
   "image": null,
+  "fact_image": "https://static01.nyt.com/athletic/uploads/wp/2024/08/21042228/GettyImages-232502-e1724228575147.jpg?width=1200&height=1200&fit=cover",
   "tags": ["1994", "ABD", "Pontiac Silverdome", "tarih", "kapalı stadyum"]
 },
   {
@@ -82,15 +83,15 @@ const questions = [
   "tags": ["Azteca", "1986", "kapasite", "Arjantin", "İngiltere", "Curaçao", "2026"]
 },
  {
-  "difficulty": "easy",
-  "points": 1,
-  "text": "2010 Dünya Kupası'nın sesli simgesi vuvuzela, FIFA tarafından hangi yıldan itibaren resmi maçlarda yasaklandı?",
-  "choices": ["2012", "2014", "2018", "2022"],
+  "difficulty": "medium",
+  "points": 2,
+  "text": "1970'lerin başında iki yıl içinde Şampiyon Kulüpler Kupası'nda Inter'i ve Juventus'u eleyip Süper Kupa'da da Milan'ı 6-0 mağlup eden; bu üç İtalyan devine karşı 9 gol atıp hiç gol yemeyen takım hangisiydi?",
+  "choices": ["Bayern Münih", "Ajax", "Feyenoord", "Borussia Mönchengladbach"],
   "answer": 1,
-  "hint": "Bu yasak, Rusya'da düzenlenen Dünya Kupası'yla yürürlüğe girdi.",
-  "fact": "Güney Afrika'da bir özgürlük ve kutlama sembolü olarak sahiplenilen vuvuzela, 2010 turnuvası boyunca dünya yayıncılarının bitmek bilmeyen şikâyet hedefi oldu. FIFA, 2014 Brezilya Dünya Kupası'nda aletleri stadyumlardan tamamen yasakladı — bir kültürün sembolü, bir kuralın gerekçesi olmuştu.",
+  "hint": "Bu takım, Johan Cruyff liderliğinde Total Futbol'u Avrupa'ya dayattı — ve üst üste üç Avrupa şampiyonluğu kazandı.",
+  "fact": "1971-73 arasında Ajax, Avrupa Kupası'nı üst üste üç kez kazandı. Bu dönemde Rinus Michels ve Johan Cruyff'un şekillendirdiği Total Futbol, pozisyon kavramını yeniden tanımladı. Calcio'nun kalesi sayılan üç İtalyan devi bu süreçte hiç gol atamadan sahadan çekildi.",
   "image": null,
-  "tags": ["vuvuzela", "2010", "2014", "Güney Afrika", "Brezilya", "FIFA", "yasak"]
+  "tags": ["Ajax", "Total Futbol", "1970ler", "Avrupa Kupası", "Cruyff", "Inter", "Juventus", "Milan"]
 },
  {
   "difficulty": "easy",
@@ -147,6 +148,99 @@ const questions = [
   "image": null,
   "tags": ["İtalya", "eleme", "2018", "2022", "2026", "İsveç", "Kuzey Makedonya", "Bosna Hersek"]
 },
+   {
+  "difficulty": "easy",
+  "points": 1,
+  "text": "Avrupa futbolunda serbest transferin önünü açan ve kulüplerin yabancı oyuncu kullanımını kökten değiştiren 'Bosman Kuralları' hangi yıl yürürlüğe girdi?",
+  "choices": ["1990", "1992", "1995", "1998"],
+  "answer": 2,
+  "hint": "Bu kararın mimarı, Belçikalı bir futbolcunun açtığı davayı Avrupa Adalet Divanı'na taşımasıyla geldi.",
+  "fact": "Jean-Marc Bosman, sözleşmesi biten bir oyuncunun başka kulübe serbestçe geçememesini Avrupa hukukunda iş özgürlüğü ihlali olarak dava etti ve kazandı. Karar, Serie A başta olmak üzere büyük liglerdeki yabancı oyuncu akışını patlatır gibi artırdı. Bosman'ın kendisi ise bu tarihi zaferin ardından parasız ve unutulmuş bir kariyer sonu yaşadı.",
+  "image": null,
+  "tags": ["Bosman", "1995", "transfer", "Avrupa hukuku", "serbest transfer", "Serie A"]
+},
+  {
+    "difficulty": "medium",
+    "points": 2,
+    "text": "\"Eğer 10 yıl önce genç takımlarda böyle bir yeteneğe sahip olacak kadar şanslı olsaydık, onu elimizden kaçırırdık\" sözleriyle İtalyan altyapı sistemini eleştiren teknik direktör ve bahsettiği genç yetenek hangi ikiliydi?",
+    "choices": [
+      "Arrigo Sacchi – Olise",
+      "Cesare Prandelli – Lamine Yamal",
+      "Roberto Mancini – Olise",
+      "Fabio Capello – Lamine Yamal"
+    ],
+    "answer": 1,
+    "hint": "Bu teknik adamın kariyerinde Galatasaray dönemi de yer aldı.",
+    "fact": "İtalya'yı Euro 2012'de finale taşıyan ve 2014'te kısa süre Galatasaray'ı çalıştıran Cesare Prandelli, Lamine Yamal'ın Euro 2024'teki dominasyonu sonrası bu itirafta bulunmuştur. İtalyan futbolunun katı, fiziksel ve kalıplara dayalı altyapı sisteminin, Yamal gibi yaratıcı ve sokak futbolu genetiğine sahip bir deha üretmek bir yana, var olanı da öğüteceğini savunmuştur.",
+    "image": null,
+    "tags": ["Prandelli", "Yamal", "İtalya", "altyapı", "Galatasaray", "teknik direktör"]
+  },
+  {
+  "difficulty": "medium",
+  "points": 2,
+  "text": "2026 Dünya Kupası'na ev sahipliği yapacak ABD'de en kalabalık göçmen topluluğunu oluşturan ülke Meksika. Turnuvanın eş ev sahiplerinden olan Meksika kökenli göçmen nüfusu yaklaşık kaçtır?",
+  "choices": ["5 milyon", "8 milyon", "11 milyon", "15 milyon"],
+  "answer": 2,
+  "hint": "Bu nüfus, tek başına birçok Avrupa ülkesinin toplam nüfusunu geride bırakır.",
+  "fact": "11 milyonu aşkın Meksika doğumlu göçmen, ABD'nin en büyük tek kökenli yabancı doğumlu grubunu oluşturuyor. 2026'da iki ülke aynı turnuvada hem rakip hem ev sahibi olacak — tribünlerdeki demografik denge, sahadan az ilginç olmayacak.",
+  "image": null,
+  "tags": ["2026", "ABD", "Meksika", "göçmen", "demografik", "ev sahipliği"]
+},
+   {
+  "difficulty": "easy",
+  "points": 1,
+  "text": "Futbolu 19. yüzyılın başlarında Meksika'ya taşıyan ve Real del Monte şehrinde ilk kulüpleri kuran Cornwall çıkışlı İngiliz göçmenlerin asıl mesleği neydi?",
+  "choices": ["Madenci", "Tekstil İşçisi", "Demiryolu Mühendisi", "Denizci"],
+  "answer": 0,
+  "hint": "Bu göçmenler, 1825 yılında Meksika'daki gümüş yataklarını yeniden canlandırmak amacıyla bölgeye getirilmişti.",
+  "fact": "Cornwall'dan gelen Cornish (Kernevek) madenciler, 1825'te Meksika'daki gümüş madenlerini işletmek için işe alındı. Bölgeye sadece madencilik tekniklerini değil, molalarda oynadıkları futbolu da taşıdılar. Bu göç sayesinde Real del Monte şehri bugün Meksika futbolunun beşiği kabul edilir.",
+  "image": null,
+  "tags": ["Meksika", "İngiltere", "Cornwall", "Real del Monte", "futbol tarihi", "madencilik"]
+},
+   {
+  "difficulty": "medium",
+  "points": 2,
+  "text": "Real del Monte'ye ulaşmayı başaran Cornwall'lı madenciler, maç sonrası bir gelenek oluşturdu. Bu gelenek neydi?",
+  "choices": [
+    "Kazanan takım ertesi sabah madende çalışmaz, dinlenirdi",
+    "En şık kıyafetlerini giyip çay partisi düzenlerlerdi",
+    "Meksikalı işçilerle ortak bir akşam yemeği yerlerdi",
+    "Her maç galibine bir gümüş madalya verilirdi"
+  ],
+  "answer": 1,
+  "hint": "Bu gelenek, İngiliz kültürünün Meksika topraklarına taşınan en tanıdık ritüellerinden biriydi.",
+  "fact": "Futbol maçlarının ardından düzenlenen çay partileri, zamanla İngiliz ve Meksikalı işçilerin ortak kültürünün bir parçası haline geldi. Real del Monte, İngiltere dışında futbol oynandığına dair bilinen en eski yerlerden biri — ve bu mirası bir çay geleneğiyle taçlandırdı.",
+  "image": null,
+  "tags": ["Real del Monte", "Cornwall", "Meksika", "çay", "futbol tarihi", "gelenek"]
+},
+   {
+  "difficulty": "hard",
+  "points": 3,
+  "text": "Meksika, ev sahibi olduğu FIFA Dünya Kupası sayısıyla tarihte kaç ülkeyle birlikte en fazla turnuvaya ev sahipliği yapan ülkeler arasında yer alır?",
+  "choices": [
+    "Yalnızca Meksika — 3 turnuvayla tek başına rekordadır",
+    "Brezilya ile birlikte — ikisi de 3'er kez ev sahipliği yaptı",
+    "İtalya ile birlikte — ikisi de 2'şer kez ev sahipliği yaptı",
+    "Fransa, Almanya ve İtalya ile birlikte — hepsi 2'şer kez ev sahipliği yaptı"
+  ],
+  "answer": 0,
+  "hint": "2026 sayılırsa Meksika bu listedeki yerini kimseyle paylaşmaz.",
+  "fact": "Meksika 1970, 1986 ve 2026 Dünya Kupalarına ev sahipliği yaparak bu ayrıcalığı üç kez yaşayan tek ülke konumuna geçti. 1986'da ev sahipliği planlanmamıştı — Kolombiya'nın çekilmesiyle Meksika 9 ay içinde organizasyonu devraldı. Futbol tarihindeki en ikonik anlar bu topraklarda yaşandı; kazanmak yerine sahip olmak Meksika'nın asıl uzmanlık alanı oldu.",
+  "image": null,
+  "tags": ["Meksika", "ev sahipliği", "1970", "1986", "2026", "rekor", "Dünya Kupası tarihi"]
+},
+    {
+  "difficulty": "easy",
+  "points": 1,
+  "text": "1970 Dünya Kupası, FIFA tarihinde bir ilki daha beraberinde getirdi: maçlar ilk kez hangi teknolojiyle yayınlandı?",
+  "choices": ["Uydu yayını", "Renkli televizyon", "Canlı radyo", "Uluslararası ortak yapım"],
+  "answer": 1,
+  "hint": "O zamana kadar dünya Dünya Kupası'nı siyah-beyaz ekranlarda izliyordu.",
+  "fact": "1970 Meksika, Dünya Kupası'nın renkli TV ile buluştuğu ilk turnuvaydı. Brezilya'nın sarı forması, o yayınların simgesi haline geldi. Pelé'nin üçüncü şampiyonluğunu dünya, ilk kez gerçek renklerinde izledi.",
+  "image": null,
+  "tags": ["1970", "Meksika", "renkli TV", "teknoloji", "Pelé", "Brezilya"]
+}
+  
  
   
 ];
