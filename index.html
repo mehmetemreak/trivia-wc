@@ -568,48 +568,48 @@
     </button>
   </div>
   <div class="choices" id="choices"></div>
+  <!-- Geliştirme/Test Butonu: Yeni veri yapısına tam uyumlu simülasyon -->
   <button onclick="(function(){
-  if(!S.deck || S.deck.length === 0) S.deck = [...S.pool];
-  
-  // State'i sıfırla
-  S.correct = 0;
-  S.wrong = 0;
-  S.score = 0;
-  S.counters.easy = 0;
-  S.counters.medium = 0;
-  S.counters.hard = 0;
-  
-  // Rastgele joker kullanım sayıları ata
-  S.hintTotal = Math.floor(Math.random() * 6); // 0-5 arası rastgele ipucu kullanımı
-  S.ffTotal = Math.floor(Math.random() * 4);   // 0-3 arası rastgele 50:50 kullanımı
+    if(!S.deck || S.deck.length === 0) S.deck = [...S.pool];
+    
+    S.correct = 0;
+    S.wrong = 0;
+    S.score = 0;
+    S.counters.easy = 0;
+    S.counters.medium = 0;
+    S.counters.hard = 0;
+    
+    // Toplamları simülasyon içinde de hesapla
+    S.totals = { easy: 0, medium: 0, hard: 0 };
+    S.deck.forEach(q => {
+      if (S.totals[q.difficulty] !== undefined) S.totals[q.difficulty]++;
+    });
+    
+    S.hintTotal = Math.floor(Math.random() * 6); 
+    S.ffTotal = Math.floor(Math.random() * 4);   
 
-  S.deck.forEach(q => {
-    const isCorrect = Math.random() > 0.35; // %65 ihtimalle doğru
-    if (isCorrect) {
-      S.correct++;
-      S.score += (q.points || 1);
-      if (S.counters[q.difficulty] !== undefined) S.counters[q.difficulty]++;
-    } else {
-      S.wrong++;
+    S.deck.forEach(q => {
+      const isCorrect = Math.random() > 0.4; 
+      if (isCorrect) {
+        S.correct++;
+        S.score += (q.points || 1);
+        if (S.counters[q.difficulty] !== undefined) S.counters[q.difficulty]++;
+      } else {
+        S.wrong++;
+      }
+    });
+
+    const freeHint = S.hintFree || 3;
+    if (S.hintTotal > freeHint) {
+      S.score -= (S.hintTotal - freeHint);
     }
-  });
+    S.score -= (S.ffTotal * 2);
+    S.score = Math.max(0, S.score);
 
-  // Joker ekonomisi cezalarını skora yansıt
-  // 3'ten fazla kullanılan her hint için -1 puan
-  if (S.hintTotal > S.hintFree) {
-    S.score -= (S.hintTotal - S.hintFree);
-  }
-  // Her 50:50 kullanımı için -2 puan
-  S.score -= (S.ffTotal * 2);
-
-  // Skorun eksiye düşmesini engelle
-  S.score = Math.max(0, S.score);
-
-  // Doğrudan bitiş ekranını tetikle
-  showEnd();
-})()" style="margin-top: 20px; width: 100%; padding: 12px; background: #1f3360; color: #ffd166; border: 1px dashed var(--gold); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-  🎲 Test: Jokerli Rastgele Skor Simüle Et
-</button>
+    showEnd();
+  })()" style="margin-top: 20px; width: 100%; padding: 12px; background: #1f3360; color: #ffd166; border: 1px dashed var(--gold); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; display: block !important; position: relative; z-index: 9999;">
+    🎲 Test: Jokerli Rastgele Skor Simüle Et
+  </button>
 </div>
 
 <div class="screen" id="screen-fact"></div>
@@ -730,16 +730,25 @@ function startQuiz() {
   S.idx       = 0;
   S.score     = 0;
   S.hintTotal = 0;
+  S.ffTotal   = 0; // 50:50 sayacı sıfırlama
   S.correct   = 0;
   S.wrong     = 0;
+  
+  // Doğru sayaçlarını sıfırla
   S.counters.easy = 0;
   S.counters.medium = 0;
   S.counters.hard = 0;
+
+  // YENİ: Havuzdaki toplam zorluk sayılarını hesaplamak için yeni alt nesneler ekle
+  S.totals = { easy: 0, medium: 0, hard: 0 };
+  S.deck.forEach(q => {
+    if (S.totals[q.difficulty] !== undefined) S.totals[q.difficulty]++;
+  });
   
   renderQ();
   show('quiz');
 }
-
+  
 function renderQ() {
   const q     = S.deck[S.idx];
   const total = S.deck.length;
