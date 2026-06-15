@@ -16,7 +16,7 @@ const questions = [
   "text": "1994 Dünya Kupası'nda Pontiac Silverdome'da oynanan ve kapalı stadyumdaki ilk Dünya Kupası maçı unvanını alan karşılaşmada hangi iki ülke sahaya çıktı?",
   "choices": ["ABD - İsviçre", "ABD - Kolombiya", "ABD - Romanya", "ABD - Meksika"],
   "answer": 0,
-  "hint": "Hint: Ev sahibi ülke, bu maçı 1954 Dünya Kupası finalisti olan Avrupa ülkesine karşı oynadı",
+  "hint": "Ev sahibi ülke, bu maçı 1954 Dünya Kupası finalisti olan Avrupa ülkesine karşı oynadı",
   "fact": "Silverdome'daki kapalı havanın elektrostatik etkisinden futbolcular şikâyetçi oldu — FIFA'nın ilk ve son kapalı stadyum denemesi oldu. Wynalda'nın golü, çoğunun hafızasında kaldı.",
   "image": null,
   "tags": ["1994", "ABD", "İsviçre", "Pontiac Silverdome", "grup aşaması", "Eric Wynalda"]
