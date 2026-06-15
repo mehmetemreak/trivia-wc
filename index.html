@@ -569,20 +569,22 @@
   </div>
   <div class="choices" id="choices"></div>
   <button onclick="(function(){
-  if(!S.deck || S.deck.length === 0) S.deck = [...S.pool]; // Eğer oyun başlamadıysa havuzu yükle
+  if(!S.deck || S.deck.length === 0) S.deck = [...S.pool];
   
-  const totalQuestions = S.deck.length || 10;
-  
-  // State'i sıfırla ve rastgele doldur
+  // State'i sıfırla
   S.correct = 0;
   S.wrong = 0;
   S.score = 0;
   S.counters.easy = 0;
   S.counters.medium = 0;
   S.counters.hard = 0;
+  
+  // Rastgele joker kullanım sayıları ata
+  S.hintTotal = Math.floor(Math.random() * 6); // 0-5 arası rastgele ipucu kullanımı
+  S.ffTotal = Math.floor(Math.random() * 4);   // 0-3 arası rastgele 50:50 kullanımı
 
   S.deck.forEach(q => {
-    const isCorrect = Math.random() > 0.4; // %60 ihtimalle doğru bilme simülasyonu
+    const isCorrect = Math.random() > 0.35; // %65 ihtimalle doğru
     if (isCorrect) {
       S.correct++;
       S.score += (q.points || 1);
@@ -592,13 +594,21 @@
     }
   });
 
-  // İpucu veya 50:50 kullanımından dolayı gelebilecek rastgele ufak puan kırpıntıları
-  S.score = Math.max(0, S.score - Math.floor(Math.random() * 4));
+  // Joker ekonomisi cezalarını skora yansıt
+  // 3'ten fazla kullanılan her hint için -1 puan
+  if (S.hintTotal > S.hintFree) {
+    S.score -= (S.hintTotal - S.hintFree);
+  }
+  // Her 50:50 kullanımı için -2 puan
+  S.score -= (S.ffTotal * 2);
+
+  // Skorun eksiye düşmesini engelle
+  S.score = Math.max(0, S.score);
 
   // Doğrudan bitiş ekranını tetikle
   showEnd();
 })()" style="margin-top: 20px; width: 100%; padding: 12px; background: #1f3360; color: #ffd166; border: 1px dashed var(--gold); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
-  🎲 Test: Rastgele Skor Simüle Et ve Bitir
+  🎲 Test: Jokerli Rastgele Skor Simüle Et
 </button>
 </div>
 
@@ -957,6 +967,10 @@ function showEnd() {
   else if (pct >= 40) { trophy = '🥉'; verdict = 'Ortalama, gelişme payı var'; }
   else                { trophy = '⚽'; verdict = 'Daha çok maç izlemek lazım'; }
 
+  // 50:50 kullanım sayısını deck üzerinden veya harici bir counter ile hesaplayabiliriz.
+  // Test butonundan da beslenebilmesi için ffTotal mantığını veya S.score kesintisinden kabaca çıkarabiliriz.
+  // Ama en temizi anlık durumu basmaktır. Simülasyon için S.hintTotal zaten elimizde var.
+
   document.getElementById('screen-end').innerHTML = `
     <div class="end-wrap">
       <div class="end-hero">
@@ -969,7 +983,8 @@ function showEnd() {
         <div class="score-number">${S.score}</div>
         <div class="score-max">/ ${maxPts} puan &nbsp;${isNewRecord ? '🏅 Yeni rekor!' : `· Rekor: ${prevBest}`}</div>
       </div>
-      <div class="end-grid" style="margin-bottom: 11px;">
+      
+      <div class="end-grid" style="margin-bottom: 9px;">
         <div class="eg-cell" style="border-color: rgba(0,183,74,0.2);">
           <div class="eg-val" style="color:var(--easy)">${S.counters.easy}</div>
           <div class="eg-lbl">Kolay Doğru</div>
@@ -983,6 +998,18 @@ function showEnd() {
           <div class="eg-lbl">Zor Doğru</div>
         </div>
       </div>
+
+      <div class="end-grid" style="margin-bottom: 9px; grid-template-columns: 1fr 1fr;">
+        <div class="eg-cell" style="border-color: rgba(255,255,255,0.05);">
+          <div class="eg-val" style="color:var(--grass)">💡 ${S.hintTotal}</div>
+          <div class="eg-lbl">İpucu Kullanımı</div>
+        </div>
+        <div class="eg-cell" style="border-color: rgba(255,255,255,0.05);">
+          <div class="eg-val" style="color:var(--yellow)">🎯 ${S.ffTotal || 0}</div>
+          <div class="eg-lbl">50:50 Kullanımı</div>
+        </div>
+      </div>
+
       <div class="end-grid">
         <div class="eg-cell">
           <div class="eg-val" style="color:var(--easy)">${S.correct}</div>
@@ -1002,7 +1029,6 @@ function showEnd() {
 
   show('end');
 }
-
 function restartQuiz() {
   renderWelcome();
   show('welcome');
