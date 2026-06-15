@@ -32,7 +32,6 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background-color: var(--pitch);
-      /* Pitch stripe signature — subtle mown-grass banding */
       background-image: repeating-linear-gradient(
         0deg,
         transparent 0px, transparent 52px,
@@ -135,6 +134,18 @@
     }
     .ji-item strong { color: var(--text); display: block; }
 
+    .best-score-badge {
+      text-align: center;
+      background: rgba(245, 197, 24, 0.08);
+      border: 1px dashed rgba(245, 197, 24, 0.3);
+      color: var(--gold);
+      padding: 8px;
+      border-radius: var(--rs);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
     .btn-start {
       display: block;
       width: 100%;
@@ -208,7 +219,6 @@
       position: relative;
       overflow: hidden;
     }
-    /* Difficulty left-edge accent */
     .q-card::before {
       content: '';
       position: absolute;
@@ -240,6 +250,22 @@
       font-size: 0.7rem;
       font-weight: 700;
       color: var(--gold);
+    }
+
+    .q-image-wrap {
+      width: 100%;
+      max-height: 220px;
+      border-radius: var(--rs);
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .q-image-wrap.show { display: block; }
+    .q-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .q-text {
@@ -354,7 +380,7 @@
       opacity: 0.65;
     }
     .choice.wrong .choice-ltr { background: var(--red); color: #fff; }
-    .choice.eliminated { opacity: 0.15; pointer-events: none; }
+    .choice.eliminated { opacity: 0.15; pointer-events: none; cursor: not-allowed; }
     .choice:disabled   { cursor: not-allowed; }
 
     /* ── FACT / RESULT ───────────────────────────────── */
@@ -500,10 +526,8 @@
 </head>
 <body>
 
-<!-- WELCOME -->
 <div class="screen active" id="screen-welcome"></div>
 
-<!-- QUIZ -->
 <div class="screen" id="screen-quiz">
   <div class="qz-header">
     <span class="q-counter" id="q-counter">Soru 1 / —</span>
@@ -516,6 +540,9 @@
     <div class="q-meta">
       <span class="diff-pill" id="diff-pill"></span>
       <span class="pts-tag"  id="pts-tag"></span>
+    </div>
+    <div class="q-image-wrap" id="q-image-wrap">
+      <img src="" alt="Soru Görseli" class="q-image" id="q-image">
     </div>
     <p class="q-text" id="q-text"></p>
     <div class="hint-reveal" id="hint-reveal">
@@ -542,15 +569,13 @@
   <div class="choices" id="choices"></div>
 </div>
 
-<!-- FACT -->
 <div class="screen" id="screen-fact"></div>
 
-<!-- END -->
 <div class="screen" id="screen-end"></div>
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   STATE
+    STATE
 ═══════════════════════════════════════════════════════ */
 const S = {
   pool:       [],   // original question array
@@ -568,7 +593,7 @@ const S = {
 };
 
 /* ═══════════════════════════════════════════════════════
-   BOOT
+    BOOT
 ═══════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   const pool = (typeof questions !== 'undefined' && Array.isArray(questions))
@@ -592,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ═══════════════════════════════════════════════════════
-   SCREEN SWITCH
+    SCREEN SWITCH
 ═══════════════════════════════════════════════════════ */
 function show(name) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -600,19 +625,28 @@ function show(name) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   WELCOME
+    WELCOME
 ═══════════════════════════════════════════════════════ */
 function renderWelcome() {
   const p = S.pool;
   const c = { easy: 0, medium: 0, hard: 0 };
   p.forEach(q => { if (c[q.difficulty] !== undefined) c[q.difficulty]++; });
   const maxPts = p.reduce((a, q) => a + (q.points || 1), 0);
+  
+  // High score fetch
+  const bestScore = getBest();
+  const bestScoreHTML = bestScore > 0 
+    ? `<div class="best-score-badge">👑 En Yüksek Skorun: ${bestScore} Puan</div>` 
+    : '';
 
   document.getElementById('screen-welcome').innerHTML = `
     <div class="welcome-wrap">
       <p class="eyebrow">Quiz Night</p>
       <h1 class="wc-title">Football<br><span>Trivia</span></h1>
       <p class="wc-sub">${p.length} soru &nbsp;·&nbsp; ${maxPts} puan havuzu</p>
+      
+      ${bestScoreHTML}
+
       <div class="pool-bar">
         <div class="pool-seg">
           <div class="ps-val" style="color:var(--easy)">${c.easy}</div>
@@ -642,7 +676,7 @@ function renderWelcome() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   QUIZ START + RENDER
+    QUIZ START + RENDER
 ═══════════════════════════════════════════════════════ */
 function startQuiz() {
   S.deck      = shuffle([...S.pool]);
@@ -677,6 +711,18 @@ function renderQ() {
   pill.className   = 'diff-pill ' + (q.difficulty || 'easy');
 
   document.getElementById('pts-tag').textContent = `⭐ ${q.points || 1} puan`;
+  
+  /* image logic resolution */
+  const imgWrap = document.getElementById('q-image-wrap');
+  const imgEl = document.getElementById('q-image');
+  if (q.image) {
+    imgEl.src = q.image;
+    imgWrap.classList.add('show');
+  } else {
+    imgEl.src = "";
+    imgWrap.classList.remove('show');
+  }
+
   document.getElementById('q-text').textContent  = q.text;
 
   /* hint box reset */
@@ -704,7 +750,7 @@ function renderQ() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   ANSWER SELECTION
+    ANSWER SELECTION
 ═══════════════════════════════════════════════════════ */
 function pick(i) {
   const q   = S.deck[S.idx];
@@ -733,7 +779,7 @@ function pick(i) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   JOKERS
+    JOKERS
 ═══════════════════════════════════════════════════════ */
 function useHint() {
   if (S.hintThisQ) return;
@@ -764,7 +810,11 @@ function useFiftyFifty() {
   const q     = S.deck[S.idx];
   const wrong = shuffle([0,1,2,3].filter(i => i !== q.answer));
   wrong.slice(0, 2).forEach(i => {
-    document.querySelectorAll('.choice')[i].classList.add('eliminated');
+    const targetChoice = document.querySelectorAll('.choice')[i];
+    if (targetChoice) {
+      targetChoice.classList.add('eliminated');
+      targetChoice.disabled = true; // Bugfix: Prevents clicks on eliminated options
+    }
   });
 }
 
@@ -789,7 +839,7 @@ function renderHintUI() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   FACT CARD
+    FACT CARD
 ═══════════════════════════════════════════════════════ */
 function showFact() {
   const q      = S.deck[S.idx];
@@ -825,7 +875,7 @@ function showFact() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   NAVIGATION
+    NAVIGATION
 ═══════════════════════════════════════════════════════ */
 function nextQ() {
   S.idx++;
@@ -838,12 +888,20 @@ function nextQ() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   END SCREEN
+    END SCREEN
 ═══════════════════════════════════════════════════════ */
 function showEnd() {
   const total  = S.deck.length;
   const pct    = Math.round((S.correct / total) * 100);
   const maxPts = S.deck.reduce((a, q) => a + (q.points || 1), 0);
+
+  // High score record save logic
+  const currentBest = getBest();
+  let isNewRecord = false;
+  if (S.score > currentBest) {
+    setBest(S.score);
+    isNewRecord = true;
+  }
 
   let trophy, verdict;
   if      (pct >= 80) { trophy = '🏆'; verdict = 'Efsane performans'; }
@@ -856,6 +914,7 @@ function showEnd() {
       <div class="end-hero">
         <div class="end-trophy">${trophy}</div>
         <h2 class="end-verdict">${verdict}</h2>
+        ${isNewRecord ? `<p style="color:var(--gold); font-size:0.9rem; font-weight:bold; margin-top:4px;">🔥 YENİ REKOR!</p>` : ''}
         <p class="end-acc">${pct}% doğruluk oranı</p>
       </div>
       <div class="score-display">
@@ -888,8 +947,11 @@ function restartQuiz() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   UTILS
+    UTILS
 ═══════════════════════════════════════════════════════ */
+const getBest = () => parseInt(localStorage.getItem('fqn_best') || '0', 10);
+const setBest = v  => localStorage.setItem('fqn_best', v);
+  
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
