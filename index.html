@@ -266,7 +266,7 @@
     .q-image {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
     }
 
     .q-text {
@@ -412,20 +412,6 @@
       border-radius: var(--r);
       padding: 16px 20px;
       margin-bottom: 11px;
-    }
-     .fact-image-wrap {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: var(--rs);
-      overflow: hidden;
-      margin-bottom: 11px;
-      border: 1px solid var(--border);
-      background: var(--surf2);
-    }
-    .fact-image-wrap img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      display: block;
     }
     .fact-eyebrow {
       font-size: 0.64rem;
@@ -887,7 +873,6 @@ function useHint() {
 function useFiftyFifty() {
   if (S.ffThisQ) return;
   S.ffThisQ = true;
-  S.ffTotal = (S.ffTotal || 0) + 1;
   S.score   = Math.max(0, S.score - 2);
   document.getElementById('score-val').textContent = S.score;
   document.getElementById('btn-5050').disabled = true;
@@ -935,15 +920,11 @@ function showFact() {
     ? `+${S.lastPts} puan · Toplam: <b style="color:var(--gold)">${S.score}</b>`
     : `Doğru cevap: <i>${q.choices[q.answer]}</i> · Toplam: <b style="color:var(--gold)">${S.score}</b>`;
 
-  const factImgHTML = q.fact_image
-  ? `<div class="fact-image-wrap"><img src="${q.fact_image}" alt="Görsel"></div>` : '';
-
-const factHTML = (q.fact || q.fact_image) ? `
-  <div class="fact-body">
-    ${factImgHTML}
-    ${q.fact ? `<div class="fact-eyebrow">⚡ Bunu biliyor muydun?</div>
-    <p class="fact-content">${q.fact}</p>` : ''}
-  </div>` : '';
+  const factHTML = q.fact ? `
+    <div class="fact-body">
+      <div class="fact-eyebrow">⚡ Bunu biliyor muydun?</div>
+      <p class="fact-content">${q.fact}</p>
+    </div>` : '';
 
   document.getElementById('screen-fact').innerHTML = `
     <div class="fact-wrap">
