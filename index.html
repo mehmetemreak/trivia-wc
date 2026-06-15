@@ -568,6 +568,38 @@
     </button>
   </div>
   <div class="choices" id="choices"></div>
+  <button onclick="(function(){
+  if(!S.deck || S.deck.length === 0) S.deck = [...S.pool]; // Eğer oyun başlamadıysa havuzu yükle
+  
+  const totalQuestions = S.deck.length || 10;
+  
+  // State'i sıfırla ve rastgele doldur
+  S.correct = 0;
+  S.wrong = 0;
+  S.score = 0;
+  S.counters.easy = 0;
+  S.counters.medium = 0;
+  S.counters.hard = 0;
+
+  S.deck.forEach(q => {
+    const isCorrect = Math.random() > 0.4; // %60 ihtimalle doğru bilme simülasyonu
+    if (isCorrect) {
+      S.correct++;
+      S.score += (q.points || 1);
+      if (S.counters[q.difficulty] !== undefined) S.counters[q.difficulty]++;
+    } else {
+      S.wrong++;
+    }
+  });
+
+  // İpucu veya 50:50 kullanımından dolayı gelebilecek rastgele ufak puan kırpıntıları
+  S.score = Math.max(0, S.score - Math.floor(Math.random() * 4));
+
+  // Doğrudan bitiş ekranını tetikle
+  showEnd();
+})()" style="margin-top: 20px; width: 100%; padding: 12px; background: #1f3360; color: #ffd166; border: 1px dashed var(--gold); border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+  🎲 Test: Rastgele Skor Simüle Et ve Bitir
+</button>
 </div>
 
 <div class="screen" id="screen-fact"></div>
