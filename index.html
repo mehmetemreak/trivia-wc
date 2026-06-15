@@ -976,9 +976,10 @@ function showEnd() {
   else if (pct >= 40) { trophy = '🥉'; verdict = 'Ortalama, gelişme payı var'; }
   else                { trophy = '⚽'; verdict = 'Daha çok maç izlemek lazım'; }
 
-  // 50:50 kullanım sayısını deck üzerinden veya harici bir counter ile hesaplayabiliriz.
-  // Test butonundan da beslenebilmesi için ffTotal mantığını veya S.score kesintisinden kabaca çıkarabiliriz.
-  // Ama en temizi anlık durumu basmaktır. Simülasyon için S.hintTotal zaten elimizde var.
+  // Havuzun boş kalma ihtimaline karşı fallback (güvenlik önlemi)
+  const totalEasy = (S.totals && S.totals.easy) ? S.totals.easy : 0;
+  const totalMedium = (S.totals && S.totals.medium) ? S.totals.medium : 0;
+  const totalHard = (S.totals && S.totals.hard) ? S.totals.hard : 0;
 
   document.getElementById('screen-end').innerHTML = `
     <div class="end-wrap">
@@ -993,18 +994,18 @@ function showEnd() {
         <div class="score-max">/ ${maxPts} puan &nbsp;${isNewRecord ? '🏅 Yeni rekor!' : `· Rekor: ${prevBest}`}</div>
       </div>
       
-      <div class="end-grid" style="margin-bottom: 9px;">
+      <div class="end-grid" style="margin-bottom: 11px;">
         <div class="eg-cell" style="border-color: rgba(0,183,74,0.2);">
-          <div class="eg-val" style="color:var(--easy)">${S.counters.easy}</div>
-          <div class="eg-lbl">Kolay Doğru</div>
+          <div class="eg-val" style="color:var(--easy)">${S.counters.easy} / ${totalEasy}</div>
+          <div class="eg-lbl">Kolay</div>
         </div>
         <div class="eg-cell" style="border-color: rgba(255,209,102,0.2);">
-          <div class="eg-val" style="color:var(--medium)">${S.counters.medium}</div>
-          <div class="eg-lbl">Orta Doğru</div>
+          <div class="eg-val" style="color:var(--medium)">${S.counters.medium} / ${totalMedium}</div>
+          <div class="eg-lbl">Orta</div>
         </div>
         <div class="eg-cell" style="border-color: rgba(230,57,70,0.2);">
-          <div class="eg-val" style="color:var(--hard)">${S.counters.hard}</div>
-          <div class="eg-lbl">Zor Doğru</div>
+          <div class="eg-val" style="color:var(--hard)">${S.counters.hard} / ${totalHard}</div>
+          <div class="eg-lbl">Zor</div>
         </div>
       </div>
 
