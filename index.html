@@ -789,21 +789,8 @@ function renderQ() {
   const imgEl   = document.getElementById('q-image');
   const bgBlur  = document.getElementById('q-bg-blur');
 
-  imgEl.onerror = null; // stale handler temizle
-
-  if (q.image) {
-    imgEl.onerror = () => {
-      imgWrap.classList.remove('show');
-      console.warn(`Kırık görsel linki: ${q.image}`);
-    };
-    imgEl.src = q.image;
-    bgBlur.style.backgroundImage = `url("${q.image}")`;
-    imgWrap.classList.add('show');
-  } else {
-    imgEl.src = "";
-    bgBlur.style.backgroundImage = "";
-    imgWrap.classList.remove('show');
-  }
+/* image artık quiz ekranında gösterilmiyor — fact ekranında açılıyor */
+  document.getElementById('q-image-wrap').classList.remove('show');
   
   document.getElementById('q-text').textContent  = q.text;
 
@@ -941,6 +928,13 @@ function showFact() {
     ? `+${S.lastPts} puan · Toplam: <b style="color:var(--gold)">${S.score}</b>`
     : `Doğru cevap: <i>${q.choices[q.answer]}</i> · Toplam: <b style="color:var(--gold)">${S.score}</b>`;
 
+  const imageHTML = q.image ? `
+    <div class="q-image-wrap show" style="margin-bottom: 13px;">
+      <div class="q-bg-blur" style="background-image:url('${q.image}')"></div>
+      <img src="${q.image}" alt="" class="q-image"
+           onerror="this.closest('.q-image-wrap').style.display='none'">
+    </div>` : '';
+
   const factHTML = q.fact ? `
     <div class="fact-body">
       <div class="fact-eyebrow">⚡ Bunu biliyor muydun?</div>
@@ -956,6 +950,7 @@ function showFact() {
           <div class="r-pts">${sub}</div>
         </div>
       </div>
+      ${imageHTML}
       ${factHTML}
       <button class="btn-next" onclick="nextQ()">
         ${isLast ? '🏁 Sonuçları gör' : 'Sonraki soru →'}
