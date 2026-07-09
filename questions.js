@@ -19,7 +19,7 @@ const questions = [
   "answer": 0,
   "hint": "Ev sahibi ülke, bu maçı 1954 Dünya Kupası'na ev sahipliği yapan Avrupa ülkesine karşı oynadı.",
   "fact": "Silverdome'daki kapalı havanın elektrostatik etkisinden futbolcular şikâyetçi oldu — FIFA'nın ilk ve son kapalı stadyum denemesi oldu. Wynalda'nın golü, çoğunun hafızasında kaldı.",
-  "image": null,
+  "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB4jaYw6szr-o28ZK6aCatT3JKgpgdPD7ENXqmTjg_dgvxIqh8mIcYZboW&s=10",
    "tags": ["1994", "ABD", "İsviçre", "Pontiac Silverdome", "grup aşaması", "Eric Wynalda"]
 },
  {
